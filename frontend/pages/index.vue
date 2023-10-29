@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const {sdk} = useSpotify()
+const { sdk } = useSpotify()
 
 </script>
 

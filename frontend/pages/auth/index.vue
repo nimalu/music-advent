@@ -14,6 +14,7 @@ onBeforeMount(async () => {
 
 <template>
     <div>
+        auth
     </div>
 </template>
 
