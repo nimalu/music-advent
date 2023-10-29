@@ -1,0 +1,18 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+  const dao = new Dao(db)
+  const collection = dao.findCollectionByNameOrId("lw1kpwhfeadl0ik")
+
+  collection.indexes = [
+    "CREATE INDEX `idx_xw39pQF` ON `day` (\n  `calendar`,\n  `day`\n)"
+  ]
+
+  return dao.saveCollection(collection)
+}, (db) => {
+  const dao = new Dao(db)
+  const collection = dao.findCollectionByNameOrId("lw1kpwhfeadl0ik")
+
+  collection.indexes = []
+
+  return dao.saveCollection(collection)
+})
