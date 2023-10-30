@@ -1,15 +1,16 @@
 <script setup lang="ts">
 const { sdk } = useSpotify()
 
-const calendarId = ref("")
 const newCalendarName = ref("new Calendar")
-const day = ref(0)
-const imageUpload = ref<HTMLInputElement>()
 
 const { calendars, createCalendar } = useCalendars()
-const { days, createDay } = useDays(calendarId)
 const handleCreateDay = () => {
     createDay(imageUpload.value?.files[0], day.value)
+}
+
+const handleCreateCalendar = async () => {
+    const c = await createCalendar(newCalendarName.value)
+    navigateTo(`/calendar/${c.id}/`)
 }
 
 </script>
@@ -23,15 +24,12 @@ const handleCreateDay = () => {
         <LoginForm />
         <div>
             <input v-model="newCalendarName">
-            <button @click="() => createCalendar(newCalendarName.value)">Create</button>
-            {{ JSON.stringify(calendars) }}
-        </div>
-        <div>
-            <input v-model="calendarId">
-            <input v-model="day">
-            <input type="file" ref="imageUpload">
-            <button @click="handleCreateDay">Create</button>
-            {{ JSON.stringify(days) }}
+            <button @click="handleCreateCalendar">Create</button>
+            <ul>
+                <li v-for="c in calendars" :key="c.id">
+                    <a :href="`/calendar/${c.id}`">{{ c.name }}</a>
+                </li>
+            </ul>
         </div>
     </div>
 </template>
