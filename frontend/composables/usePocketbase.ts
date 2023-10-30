@@ -6,11 +6,11 @@ export const usePocketBase = () => {
         return await pb.collection('users').authWithPassword(email, password);
     }
 
-    const register = async (email: string, password: string, passwordConfirm: string) => {
+    const register = async (username: string, password: string) => {
         await pb.collection("users").create({
-            email, password, passwordConfirm
+            username, password, passwordConfirm: password
         })
-        return await login(email, password)
+        return await login(username, password)
     }
 
     const isAuthenticated = () => {

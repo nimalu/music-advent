@@ -38,8 +38,6 @@ export const useCalendar = (id: MaybeRefOrGetter<string>) => {
         return record
     }
 
-    pb.files.getUrl()
-
     watchEffect(() => {
         if (toValue(id)) {
             fetchCalendar()

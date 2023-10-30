@@ -1,10 +1,8 @@
 
 export interface CalendarModel {
     id: string
-    creator: string
+    user: string
     playlist: string
-    recipients: string
-    name: string
 }
 
 export const useCalendars = () => {
@@ -12,11 +10,10 @@ export const useCalendars = () => {
     const calendars = ref<CalendarModel[]>([])
 
 
-    const createCalendar = async (name: string) => {
+    const createCalendar = async () => {
         const record = await pb.collection<CalendarModel>("calendars")
             .create({
-                "creator": getUserId(),
-                "name": name
+                "user": getUserId(),
             })
         fetchCalendars()
         return record
