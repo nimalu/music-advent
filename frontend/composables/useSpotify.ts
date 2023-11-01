@@ -1,7 +1,8 @@
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
+import { useSessionStorage } from "@vueuse/core";
 
 
-export const useSpotify = () => {
+export const useSpotify = async () => {
     const runtimeConfig = useRuntimeConfig()
 
     const sdk = SpotifyApi.withUserAuthorization(
@@ -18,11 +19,34 @@ export const useSpotify = () => {
             return token["access_token"]
         }
     }
-    const isAuthenticated = async () => {
+
+    const isAuthenticated = ref(false)
+
+    const updateAuthenticated = async () => {
         const token = await sdk.getAccessToken()
-        return token != null
+        isAuthenticated.value = token != null
     }
-    return { sdk, getAccessToken, isAuthenticated }
+
+    const authenticateSource = useSessionStorage("redirect-src", "/")
+    const logIn = async () => {
+        authenticateSource.value = window.location.pathname
+        await sdk.authenticate()
+    }
+
+    const onLoggedIn = async () => {
+        await sdk.authenticate()
+        await updateAuthenticated()
+        navigateTo(authenticateSource.value)
+    }
+
+    const logOut = async () => {
+        sdk.logOut()
+        await updateAuthenticated()
+    }
+
+    await updateAuthenticated()
+
+    return { sdk, getAccessToken, isAuthenticated, logIn, logOut, onLoggedIn }
 }
 
 export const usePlayer = async () => {
@@ -34,7 +58,7 @@ export const usePlayer = async () => {
         script.src = "https://sdk.scdn.co/spotify-player.js"
         document.head.appendChild(script)
     })
-    
+
     await installPlaybackSDK
 
     const token = await getAccessToken()

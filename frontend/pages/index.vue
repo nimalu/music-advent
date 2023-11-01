@@ -18,6 +18,9 @@ const handleCreateCalendar = async () => {
 </script>
 
 <template>
-    <input type="password" v-model="password">
-    <button @click="handleCreateCalendar">Create</button>
+    <main class="w-screen space-y-4 text-center p-4">
+        <SpotifyConnect />
+        <LoginForm />
+    </main>
 </template>
+
