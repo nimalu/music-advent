@@ -9,13 +9,6 @@ export default defineNuxtConfig({
             SPOTIFY_CLIENT_ID: "df3594cdea0a418bade9006fc2b6db29",
         }
     },
-    postcss: {
-        plugins: {
-            tailwindcss: {},
-            autoprefixer: {}
-        }
-    },
-    css: ['~/assets/css/main.css'],
     devtools: { enabled: true }
 })
 
