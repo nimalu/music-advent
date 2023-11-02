@@ -25,10 +25,14 @@ export const usePocketBase = () => {
         isAuthenticated.value = pb.authStore.isValid
     }
 
-    const getUserId = (): string => {
-        return pb.authStore.model?.id || ""
-    }
+    const userId = computed(() => {
+        if (isAuthenticated) {
+            return pb.authStore.model?.id 
+        } else {
+            return null
+        }
+    })
 
     updateAuthenticated()
-    return { pb, login, register, isAuthenticated, getUserId, logout }
+    return { pb, login, register, isAuthenticated, userId, logout }
 }

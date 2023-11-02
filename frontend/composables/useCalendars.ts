@@ -6,14 +6,14 @@ export interface CalendarModel {
 }
 
 export const useCalendars = () => {
-    const { pb, getUserId } = usePocketBase()
+    const { pb, userId } = usePocketBase()
     const calendars = ref<CalendarModel[]>([])
 
 
     const createCalendar = async () => {
         const record = await pb.collection<CalendarModel>("calendars")
             .create({
-                "user": getUserId(),
+                "user": toValue(userId)
             })
         fetchCalendars()
         return record
@@ -23,8 +23,7 @@ export const useCalendars = () => {
         calendars.value = await pb.collection<CalendarModel>("calendars").getFullList()
     }
 
-    fetchCalendars()
 
-    return { calendars, createCalendar }
+    return { calendars, createCalendar, fetchCalendars }
 }
 

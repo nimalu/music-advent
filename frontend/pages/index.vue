@@ -5,8 +5,11 @@
 
 <template>
     <main class="w-screen space-y-8 p-4">
-        <SpotifyConnect />
-        <LoginForm />
+        <ClientOnly>
+            <SpotifyConnect />
+            <LoginForm />
+            <CalendarOverview />
+        </ClientOnly>
     </main>
 </template>
 
