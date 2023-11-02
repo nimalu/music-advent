@@ -3,32 +3,34 @@
 const email = ref("")
 const password = ref("")
 
-const { login, register } = usePocketBase()
+const { login, register, isAuthenticated, logout } = usePocketBase()
 
 function handleLogin() {
     login(email.value, password.value)
 }
 function handleRegister() {
-    register(email.value, password.value, password.value)
+    register(email.value, password.value)
 }
 </script>
 
 <template>
-    <form class="flex flex-col gap-2">
-        <label for="email">Email</label>
-        <input v-model="email" type="email" id="email" name="email" required class="border rounded p-2">
+    <form v-if="!isAuthenticated" @submit.prevent="handleLogin" class="space-y-4 max-w-sm">
+        <TextField v-model="email" label="Email" type="email" />
+        <TextField v-model="password" label="Password" type="password" />
 
-        <label for="password">Password</label>
-        <input v-model="password" type="password" id="password" name="password" required class="border rounded p-2">
-
-        <button type="button" @click="handleLogin"
-            class="bg-gray-100 hover:bg-gray-200 focus:bg-gray-300 text-gray-700 font-bold p-3 rounded">
+        <button type="submit"
+            class="block w-full bg-purple-500 text-white hover:bg-purple-600 font-bold px-3 py-2.5 rounded">
             Login
         </button>
-        <button type="button" @click="handleRegister"
-            class="bg-gray-100 hover:bg-gray-200 focus:bg-gray-300 text-gray-700 font-bold p-3 rounded">
-            Register
-        </button>
+
+        <div class="flex justify-between text-gray-400">
+            <button type="button" @click="handleRegister" class="text-purple-700 hover:underline">Signup</button>
+            <a class="hover:underline" href="/password-reset">Forgot your password?</a>
+        </div>
     </form>
+    <div v-else>
+        You are logged in.
+        <button @click="() => logout()">Logout</button>
+    </div>
 </template>
 

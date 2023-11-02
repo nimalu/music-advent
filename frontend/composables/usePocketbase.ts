@@ -3,22 +3,32 @@ import PocketBase from 'pocketbase';
 export const usePocketBase = () => {
     const pb = new PocketBase('http://127.0.0.1:8090');
     const login = async (email: string, password: string) => {
-        return await pb.collection('users').authWithPassword(email, password);
+        await pb.collection('users').authWithPassword(email, password);
+        updateAuthenticated()
     }
 
-    const register = async (username: string, password: string) => {
+    const logout = () => {
+        pb.authStore.clear()
+        updateAuthenticated()
+    }
+
+    const register = async (email: string, password: string) => {
         await pb.collection("users").create({
-            username, password, passwordConfirm: password
+            email, password, passwordConfirm: password
         })
-        return await login(username, password)
+        await login(email, password)
+        updateAuthenticated()
     }
 
-    const isAuthenticated = () => {
-        return pb.authStore.isValid
+    const isAuthenticated = ref(false)
+    const updateAuthenticated = () => {
+        isAuthenticated.value = pb.authStore.isValid
     }
 
-    const getUserId = () => {
-        return pb.authStore.model.id
+    const getUserId = (): string => {
+        return pb.authStore.model?.id || ""
     }
-    return { pb, login, register, isAuthenticated, getUserId }
+
+    updateAuthenticated()
+    return { pb, login, register, isAuthenticated, getUserId, logout }
 }
