@@ -1,4 +1,4 @@
-import { SpotifyApi } from "@spotify/web-api-ts-sdk";
+import { SpotifyApi, type Playlist } from "@spotify/web-api-ts-sdk";
 import { useSessionStorage } from "@vueuse/core";
 
 
@@ -78,6 +78,12 @@ export const usePlayer = async () => {
 
     const deviceId = await getDeviceId
     await sdk.player.transferPlayback([deviceId], true);
+    await sdk.player.pausePlayback(deviceId)
 
-    return player
+    const playTrack = async (playlist: Playlist, trackNumber: number) => {
+        await sdk.player.startResumePlayback(deviceId, playlist.uri, undefined, { position: trackNumber })
+
+    }
+
+    return { playTrack }
 }
