@@ -6,7 +6,7 @@ const { isAuthenticated, logOut, logIn } = await useSpotify()
 <template>
     <v-row dense>
         <v-col cols="12">
-            <v-btn block @click="logIn" color="green" :disabled="!isAuthenticated" variant="flat">
+            <v-btn block @click="logIn" color="green" :disabled="isAuthenticated" variant="flat">
                 {{ isAuthenticated ? "Connected to spotify" : "Connect to spotify" }}
             </v-btn>
         </v-col>
