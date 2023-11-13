@@ -3,13 +3,41 @@ const route = useRoute()
 const calendarId = route.params.id
 
 const { playlists } = await usePlaylists()
-const { days, createDay, calendar } = useCalendar(calendarId)
+const { days, createDay, calendar, updateDay } = useCalendar(calendarId)
 const selectedPlaylist = ref(playlists[0])
 const { tracks } = await usePlaylist(selectedPlaylist)
 const { playTrack } = await usePlayer()
+
+const getImageOfDay = (door: number) => {
+    return days.value.find(d => d.day == door.toString())?.url
+}
+
+const input = ref<HTMLInputElement>()
+
+let selectedDoor = 0
+const selectFile = (door: number) => {
+    input.value?.click()
+    selectedDoor = door
+}
+const handleFileSelected = () => {
+    console.log(selectedDoor)
+    const files = input.value?.files
+    if (!files) {
+        return
+    }
+    const file = files[0]
+
+    const existingDay = days.value.find(d => selectedDoor.toString() == d.day)
+    if (existingDay) {
+        updateDay(file, existingDay.id)
+    } else {
+        createDay(file, selectedDoor)
+    }
+}
 </script>
 
 <template>
+    <input @change="handleFileSelected" type="file" ref="input" style="visibility: hidden;">
     <v-container>
         <v-row class="pa-2">
             <v-col>
@@ -33,10 +61,11 @@ const { playTrack } = await usePlayer()
                         </v-card-subtitle>
                     </v-card-item>
                     <v-card-text>
-                        helloo
+                        <v-img :src="getImageOfDay(door)" />
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn @click="() => playTrack(selectedPlaylist, door - 1)" icon="mdi-play" variant="text" />
+                        <v-btn @click="() => playTrack(selectedPlaylist, door - 1)" icon="mdi-play" size="small" />
+                        <v-btn @click="() => selectFile(door)" accept="image/*" icon="mdi-upload" size="small" />
                     </v-card-actions>
                 </v-card>
 

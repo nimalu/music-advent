@@ -38,6 +38,15 @@ export const useCalendar = (id: MaybeRefOrGetter<string>) => {
         return record
     }
 
+    const updateDay = async (image: File, dayId: string) => {
+        const formData = new FormData()
+        formData.append("calendar", toValue(id))
+        formData.append("image", image)
+        const record = await pb.collection("days").update(dayId, formData)
+        fetchDays()
+        return record
+    }
+
     watchEffect(() => {
         if (toValue(id)) {
             fetchCalendar()
@@ -47,5 +56,5 @@ export const useCalendar = (id: MaybeRefOrGetter<string>) => {
         }
     })
 
-    return { days, createDay, calendar }
+    return { days, createDay, calendar, updateDay }
 }

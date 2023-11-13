@@ -22,7 +22,7 @@ function handleRegister() {
                 <v-btn @click="handleLogin" :disabled="isAuthenticated" block variant="flat" color="purple" class="flex-grow-1">Login</v-btn>
             </v-col>
             <v-col>
-                <v-btn @click="handleRegister" block variant="flat" border>Logout</v-btn>
+                <v-btn @click="() => logout()" block variant="flat" border>Logout</v-btn>
             </v-col>
         </v-row>
     </v-form>
