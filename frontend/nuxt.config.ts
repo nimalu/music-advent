@@ -16,7 +16,7 @@ export default defineNuxtConfig({
         SPOTIFY_CLIENT_SECRET: "top_secret",
         public: {
             SPOTIFY_CLIENT_ID: "df3594cdea0a418bade9006fc2b6db29",
-            SPOTIFY_REDIRECT_URL: "http://localhost:3000/"
+            SPOTIFY_REDIRECT_URL: "http://localhost:3000/calendars"
         }
     },
     devtools: { enabled: true },

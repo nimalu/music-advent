@@ -1,13 +1,12 @@
 <script setup lang="ts">
-const { pb, meta } = await usePocketbase()
-const sdk = await useSpotify()
+definePageMeta({
+    layout: 'info'
+})
 </script>
 
 <template>
     <v-container fluid>
-        <v-row>
-            {{ meta }}
-        </v-row>
+        <v-btn href="calendars/">Calendars</v-btn>
     </v-container>
 </template>
 
