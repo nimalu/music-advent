@@ -5,15 +5,15 @@ export interface CalendarModel {
     playlist: string
 }
 
-export const useCalendars = () => {
-    const { pb, userId } = usePocketBase()
+export const useCalendars = async () => {
+    const { pb } = await usePocketbase()
     const calendars = ref<CalendarModel[]>([])
 
 
     const createCalendar = async () => {
         const record = await pb.collection<CalendarModel>("calendars")
             .create({
-                "user": toValue(userId)
+                "user": toValue(pb.authStore.model.id)
             })
         fetchCalendars()
         return record

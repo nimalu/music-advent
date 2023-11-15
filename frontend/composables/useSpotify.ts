@@ -1,4 +1,4 @@
-import { SpotifyApi, type Playlist, AuthorizationCodeWithPKCEStrategy, type IRedirectionStrategy } from "@spotify/web-api-ts-sdk";
+import { SpotifyApi, type Playlist, AuthorizationCodeWithPKCEStrategy, type AccessToken } from "@spotify/web-api-ts-sdk";
 
 export const useSpotify = async () => {
     const runtimeConfig = useRuntimeConfig()
@@ -9,9 +9,7 @@ export const useSpotify = async () => {
         ['streaming', 'user-read-email', 'user-read-private']
     )
     const sdk = new SpotifyApi(auth)
-    const { authenticated } = await sdk.authenticate()
-    console.log(authenticated)
-
+    await sdk.authenticate()
 
     const getAccessToken = async () => {
         const token = await sdk.getAccessToken()

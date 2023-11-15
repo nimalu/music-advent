@@ -3,7 +3,7 @@ const route = useRoute()
 const calendarId = route.params.id
 
 const { playlists } = await usePlaylists()
-const { days, createDay, calendar, updateDay } = useCalendar(calendarId)
+const { days, createDay, calendar, updateDay } = await useCalendar(calendarId)
 const selectedPlaylist = ref(playlists[0])
 const { tracks } = await usePlaylist(selectedPlaylist)
 const { playTrack } = await usePlayer()

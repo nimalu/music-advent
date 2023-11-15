@@ -19,8 +19,6 @@
     "vuetify": "^3.4.0"
   },
   "dependencies": {
-    "@auth/core": "^0.17.0",
-    "@hebilicious/authjs-nuxt": "latest",
     "@mdi/font": "^7.3.67",
     "@spotify/web-api-ts-sdk": "^1.1.2",
     "@vueuse/core": "^10.5.0",

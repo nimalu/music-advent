@@ -7,8 +7,8 @@ export interface DayModel {
     url?: string;
 }
 
-export const useCalendar = (id: MaybeRefOrGetter<string>) => {
-    const { pb } = usePocketBase()
+export const useCalendar = async (id: MaybeRefOrGetter<string>) => {
+    const { pb } = await usePocketbase()
     const days = ref<DayModel[]>([])
     const calendar = ref<CalendarModel>()
 
