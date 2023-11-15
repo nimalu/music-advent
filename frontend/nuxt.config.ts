@@ -13,9 +13,10 @@ export default defineNuxtConfig({
         '/**': { ssr: false },
     },
     runtimeConfig: {
-        SPOTIFY_CLIENT_SECRET: "1989050bb7dc4cb189cc5f6fa23e1625",
+        SPOTIFY_CLIENT_SECRET: "top_secret",
         public: {
             SPOTIFY_CLIENT_ID: "df3594cdea0a418bade9006fc2b6db29",
+            SPOTIFY_REDIRECT_URL: "http://localhost:3000/"
         }
     },
     devtools: { enabled: true },

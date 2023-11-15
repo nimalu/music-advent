@@ -1,15 +1,17 @@
-import { SpotifyApi, type Playlist } from "@spotify/web-api-ts-sdk";
-import { useSessionStorage } from "@vueuse/core";
-
+import { SpotifyApi, type Playlist, AuthorizationCodeWithPKCEStrategy, type IRedirectionStrategy } from "@spotify/web-api-ts-sdk";
 
 export const useSpotify = async () => {
     const runtimeConfig = useRuntimeConfig()
 
-    const sdk = SpotifyApi.withUserAuthorization(
+    const auth = new AuthorizationCodeWithPKCEStrategy(
         runtimeConfig.public.SPOTIFY_CLIENT_ID,
-        'http://localhost:3000/auth',
+        runtimeConfig.public.SPOTIFY_REDIRECT_URL,
         ['streaming', 'user-read-email', 'user-read-private']
-    );
+    )
+    const sdk = new SpotifyApi(auth)
+    const { authenticated } = await sdk.authenticate()
+    console.log(authenticated)
+
 
     const getAccessToken = async () => {
         const token = await sdk.getAccessToken()
@@ -20,33 +22,7 @@ export const useSpotify = async () => {
         }
     }
 
-    const isAuthenticated = ref(false)
-
-    const updateAuthenticated = async () => {
-        const token = await sdk.getAccessToken()
-        isAuthenticated.value = token != null
-    }
-
-    const authenticateSource = useSessionStorage("redirect-src", "/")
-    const logIn = async () => {
-        authenticateSource.value = window.location.pathname
-        await sdk.authenticate()
-    }
-
-    const onLoggedIn = async () => {
-        await sdk.authenticate()
-        await updateAuthenticated()
-        navigateTo(authenticateSource.value)
-    }
-
-    const logOut = async () => {
-        sdk.logOut()
-        await updateAuthenticated()
-    }
-
-    await updateAuthenticated()
-
-    return { sdk, getAccessToken, isAuthenticated, logIn, logOut, onLoggedIn }
+    return { sdk, getAccessToken }
 }
 
 export const usePlayer = async () => {
