@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { calendars, fetchCalendars } = useCalendars()
+const { calendars, fetchCalendars } = await useCalendars()
 await fetchCalendars()
 </script>
 <template>

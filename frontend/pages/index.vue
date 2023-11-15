@@ -1,13 +1,12 @@
 <script setup lang="ts">
-await useSpotify()
+const { pb, meta } = await usePocketbase()
+const sdk = await useSpotify()
 </script>
 
 <template>
     <v-container fluid>
         <v-row>
-            <v-col cols="12">
-                <LoginForm />
-            </v-col>
+            {{ meta }}
         </v-row>
     </v-container>
 </template>
