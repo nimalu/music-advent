@@ -1,6 +1,6 @@
+import { resolve } from "node:path"
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     modules: [
         (_options, nuxt) => {
@@ -8,16 +8,26 @@ export default defineNuxtConfig({
                 // @ts-expect-error
                 config.plugins.push(vuetify({ autoImport: true }))
             })
-        },],
+        },
+        "@hebilicious/authjs-nuxt"
+    ],
     routeRules: {
-        '/**': { ssr: false },
+        '/**': { ssr: true },
     },
     runtimeConfig: {
         SPOTIFY_CLIENT_SECRET: "top_secret",
         public: {
             SPOTIFY_CLIENT_ID: "df3594cdea0a418bade9006fc2b6db29",
-            SPOTIFY_REDIRECT_URL: "http://localhost:3000/"
-        }
+            SPOTIFY_REDIRECT_URL: "http://localhost:3000/",
+            authJs: {
+                baseUrl: process.env.NUXT_BASE_URL,
+                verifyClientOnEvereyRequest: true
+            }
+        },
+        authJs: {
+            secret: process.env.NUXT_AUTH_SECRET
+        }, 
+        
     },
     devtools: { enabled: true },
     build: {
@@ -30,5 +40,8 @@ export default defineNuxtConfig({
             },
         },
     },
+    alias: {
+        cookie: resolve(__dirname, "node_modules/cookie")
+    }
 })
 
