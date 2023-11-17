@@ -1,23 +1,31 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 const route = useRoute()
 const calendarId = route.params.id
-const { calendar } = await useCalendar(calendarId)
-
-
-const link = computed(() => {
-    if (!calendar.value) {
-        return undefined
+const password = computed(() => {
+    if ("pwd" in route.query) {
+        return route.query["pwd"]
+    } else {
+        return "---"
     }
-    const path = window.location.toString().replace("share", "view")
-    const url = new URL(path)
-    url.searchParams.set("pwd", calendar.value.password)
-    return url.toString()
 })
 
+const { playlists } = await usePlaylists()
+const { days, calendar } = await useCalendar(calendarId, password)
+const selectedPlaylist = ref(playlists[0])
+const { tracks } = await usePlaylist(selectedPlaylist)
+const { playTrack } = await usePlayer()
+
+const getImageOfDay = (door: number) => {
+    return days.value.find(d => d.day == door.toString())?.url
+}
 </script>
 
 <template>
-    <div class="pa-2" v-if="calendar">
-        {{ link }}
-    </div>
+    <v-row dense>
+        {{ password }}
+        <v-col v-for="door in 24" :key="door" cols="2">
+            <v-img :src="getImageOfDay(door)" />
+            <v-btn @click="() => playTrack(selectedPlaylist, door - 1)" icon="mdi-play" size="small" />
+        </v-col>
+    </v-row>
 </template>

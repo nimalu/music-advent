@@ -7,25 +7,46 @@ export interface DayModel {
     url?: string;
 }
 
-export const useCalendar = async (id: MaybeRefOrGetter<string>) => {
+export const useCalendar = async (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter<string>) => {
     const { pb } = await usePocketbase()
     const days = ref<DayModel[]>([])
     const calendar = ref<CalendarModel>()
+
+    function setPwdHeader(password: string) {
+        pb.beforeSend = function(url, options) {
+            console.log(url)
+            options.headers['pwd'] = password
+        }
+    }
+
+    const pwdValue = toValue(pwd)
+    if (pwdValue) {
+        setPwdHeader(pwdValue)
+    }
 
     const fetchDays = async () => {
         days.value = await pb.collection("days")
             .getFullList({ filter: `calendar.id = '${toValue(id)}'` })
 
-        const fileToken = await pb.files.getToken() 
+        const fileToken = await pb.files.getToken()
         for (const d of days.value) {
-            const url = pb.files.getUrl(d, d.image, {'token': fileToken})
+            let url = pb.files.getUrl(d, d.image, { 'token': fileToken })
+            if (toValue(pwd)) {
+                const res = await fetch(url, {
+                    headers: new Headers({
+                        "pwd": toValue(pwd) || ''
+                    })
+                })
+                const blob = await res.blob()
+                url = URL.createObjectURL(blob)
+            }
             d.url = url
         }
     }
 
     const fetchCalendar = async () => {
         calendar.value = await pb.collection("calendars")
-          .getOne(toValue(id))
+            .getOne(toValue(id))
     }
 
     const createDay = async (image: File, day: number) => {

@@ -34,6 +34,16 @@ const handleFileSelected = () => {
         createDay(file, selectedDoor)
     }
 }
+
+const link = computed(() => {
+    if (!calendar.value) {
+        return undefined
+    }
+    const path = window.location.toString() + "/share"
+    const url = new URL(path)
+    url.searchParams.set("pwd", calendar.value.password)
+    return url.toString()
+})
 </script>
 
 <template>
@@ -72,6 +82,10 @@ const handleFileSelected = () => {
         </v-row>
         <v-row class="pa-2">
             <v-btn :href="`/calendars/${calendarId}/share`" variant="flat" color="primary" block>Share</v-btn>
+
+            <p class="pa-2" v-if="calendar">
+                {{ link }}
+            </p>
         </v-row>
     </v-container>
 </template>
