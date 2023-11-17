@@ -25,6 +25,10 @@ export const useSpotify = async () => {
 
 export const usePlayer = async () => {
     const { sdk, getAccessToken } = await useSpotify()
+    const state = ref<{
+        paused: boolean
+        track: string
+    }>({ paused: true, track: '' })
 
     const installPlaybackSDK = new Promise(resolve => {
         window.onSpotifyWebPlaybackSDKReady = resolve
@@ -42,6 +46,19 @@ export const usePlayer = async () => {
     });
     player.addListener('initialization_error', ({ message }) => console.error(message));
     player.addListener('authentication_error', ({ message }) => console.error(message));
+    player.addListener('player_state_changed', (s) => {
+        if (!s) {
+            state.value = {
+                paused: true,
+                track: ''
+            }
+        } else {
+            state.value = {
+                paused: s.paused,
+                track: s.track_window.current_track.uri
+            }
+        }
+    })
 
     const getDeviceId = new Promise<string>(resolve => {
         player.addListener('ready', async ({ device_id: deviceId }) => {
@@ -56,8 +73,11 @@ export const usePlayer = async () => {
 
     const playTrack = async (playlist: Playlist, trackNumber: number) => {
         await sdk.player.startResumePlayback(deviceId, playlist.uri, undefined, { position: trackNumber })
-
     }
 
-    return { playTrack }
+    const pause = async () => {
+        await sdk.player.pausePlayback(deviceId)
+    }
+
+    return { playTrack, state, pause }
 }

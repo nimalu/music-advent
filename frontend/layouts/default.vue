@@ -1,9 +1,13 @@
 <script setup lang="ts">
-    await usePocketbase()
+await usePocketbase()
 </script>
 
 <template>
-  <div>
-    <slot />
-  </div>
+    <v-layout>
+        <v-main>
+            <v-container fluid>
+                <slot />
+            </v-container>
+        </v-main>
+    </v-layout>
 </template>
