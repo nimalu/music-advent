@@ -1,6 +1,10 @@
 <script setup lang="ts">
-const { calendars, fetchCalendars } = await useCalendars()
+const { calendars, fetchCalendars, createCalendar } = await useCalendars()
 await fetchCalendars()
+if (calendars.value.length == 0) {
+    const c = await createCalendar()
+    navigateTo(`/calendars/${c.id}/edit`)
+}
 </script>
 <template>
     <v-row class="pa-2">

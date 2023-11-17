@@ -47,6 +47,10 @@ export const useCalendar = async (id: MaybeRefOrGetter<string>) => {
         return record
     }
 
+    const updateCalendar = async (calendar: CalendarModel) => {
+        await pb.collection("calendar").update(calendar.id, calendar)
+    }
+
     watchEffect(() => {
         if (toValue(id)) {
             fetchCalendar()
@@ -56,5 +60,5 @@ export const useCalendar = async (id: MaybeRefOrGetter<string>) => {
         }
     })
 
-    return { days, createDay, calendar, updateDay }
+    return { days, createDay, calendar, updateDay, updateCalendar }
 }

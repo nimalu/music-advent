@@ -68,8 +68,10 @@ const handleFileSelected = () => {
                         <v-btn @click="() => selectFile(door)" accept="image/*" icon="mdi-upload" size="small" />
                     </v-card-actions>
                 </v-card>
-
             </v-col>
+        </v-row>
+        <v-row class="pa-2">
+            <v-btn :href="`/calendars/${calendarId}/share`" variant="flat" color="primary" block>Share</v-btn>
         </v-row>
     </v-container>
 </template>

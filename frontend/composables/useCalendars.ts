@@ -1,8 +1,10 @@
+import { randomString } from "~/utils"
 
 export interface CalendarModel {
     id: string
     user: string
     playlist: string
+    password: string
 }
 
 export const useCalendars = async () => {
@@ -13,9 +15,9 @@ export const useCalendars = async () => {
     const createCalendar = async () => {
         const record = await pb.collection<CalendarModel>("calendars")
             .create({
-                "user": toValue(pb.authStore.model.id)
+                "user": toValue(pb.authStore.model.id),
+                "password": randomString(24)
             })
-        fetchCalendars()
         return record
     }
 

@@ -76,7 +76,6 @@ export const usePocketbase = async () => {
             await redirect()
         }
     }
-    console.log("pbbb")
 
     return { pb }
 }
