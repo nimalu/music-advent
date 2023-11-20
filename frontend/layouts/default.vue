@@ -1,7 +1,3 @@
-<script setup lang="ts">
-await usePocketbase()
-</script>
-
 <template>
     <v-layout>
         <v-main>

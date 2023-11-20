@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+definePageMeta({ middleware: ['auth'] })
 const route = useRoute()
 const calendarId = route.params.id
 const password = computed(() => {

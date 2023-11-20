@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ middleware: ['auth'] })
+
 const { calendars, fetchCalendars, createCalendar } = await useCalendars()
 await fetchCalendars()
 if (calendars.value.length == 0) {
