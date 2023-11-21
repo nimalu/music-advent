@@ -1,5 +1,6 @@
 <script setup lang="ts">
 definePageMeta({ middleware: ['auth'] })
+
 const route = useRoute()
 const calendarId = route.params.id
 
