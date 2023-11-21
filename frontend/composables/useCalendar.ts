@@ -7,15 +7,23 @@ export interface DayModel {
     url?: string;
 }
 
-export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter<string>) => {
+export const useCalendar = async (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter<string>) => {
     const { pb } = usePocketbase()
     const days = ref<DayModel[]>([])
-    const calendar = ref<CalendarModel>()
+    const calendar = ref<CalendarModel>({
+        id: "",
+        user: "",
+        playlist: "",
+        password: "",
+    })
 
     function setPwdHeader(password: string) {
-        pb.beforeSend = function(url, options) {
-            console.log(url)
+        pb.beforeSend = function(_, options) {
+            if (!options.headers) {
+                options.headers = {}
+            }
             options.headers['pwd'] = password
+            return {}
         }
     }
 
@@ -72,14 +80,22 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
         await pb.collection("calendar").update(calendar.id, calendar)
     }
 
+    const link = computed(() => {
+        if (!calendar.value) {
+            return undefined
+        }
+        const path = window.location.toString() + "/share"
+        const url = new URL(path)
+        url.searchParams.set("pwd", calendar.value.password)
+        return url.toString()
+    })
+
     watchEffect(() => {
         if (toValue(id)) {
             fetchCalendar()
             fetchDays()
-        } else {
-            days.value = []
         }
     })
 
-    return { days, createDay, calendar, updateDay, updateCalendar }
+    return { days, createDay, calendar, updateDay, updateCalendar, link }
 }

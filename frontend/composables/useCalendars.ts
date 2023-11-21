@@ -7,15 +7,14 @@ export interface CalendarModel {
     password: string
 }
 
-export const useCalendars = async () => {
-    const { pb } = await usePocketbase()
+export const useCalendars = () => {
+    const { pb } = usePocketbase()
     const calendars = ref<CalendarModel[]>([])
-
 
     const createCalendar = async () => {
         const record = await pb.collection<CalendarModel>("calendars")
             .create({
-                "user": toValue(pb.authStore.model.id),
+                "user": toValue(pb.authStore.model?.id),
                 "password": randomString(24)
             })
         return record
@@ -24,7 +23,6 @@ export const useCalendars = async () => {
     const fetchCalendars = async () => {
         calendars.value = await pb.collection<CalendarModel>("calendars").getFullList()
     }
-
 
     return { calendars, createCalendar, fetchCalendars }
 }

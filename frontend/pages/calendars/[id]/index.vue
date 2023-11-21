@@ -1,27 +1,29 @@
 <script setup lang="ts">
+
 definePageMeta({ middleware: ['auth'] })
 
 const route = useRoute()
-const calendarId = route.params.id
+const calendarId = route.params.id as string
+const { days, createDay, calendar, updateDay, link } = await useCalendar(calendarId)
 
 const { playlists } = await usePlaylists()
-const { days, createDay, calendar, updateDay } = await useCalendar(calendarId)
-const selectedPlaylist = ref(playlists[0])
-const { tracks } = await usePlaylist(selectedPlaylist)
-const { playTrack, state, pause } = await usePlayer()
+const selectedPlaylist = ref(playlists.value[0])
+
+const { tracks } = useTracks(selectedPlaylist)
+const { playTrack, pause, playback } = usePlayer()
 
 const getImageOfDay = (door: number) => {
     return days.value.find(d => d.day == door.toString())?.url
 }
+
 const isPlaying = (door: number) => {
-    if (state.value.paused || !tracks.value || tracks.value.length < door) {
+    if (playback.value?.paused || !tracks.value || tracks.value.length < door) {
         return false
     }
-    return state.value.track == tracks.value[door - 1].track.uri
+    return playback.value?.track == tracks.value[door - 1].track.uri
 }
 
 const input = ref<HTMLInputElement>()
-
 let selectedDoor = 0
 const selectFile = (door: number) => {
     input.value?.click()
@@ -41,16 +43,6 @@ const handleFileSelected = () => {
         createDay(file, selectedDoor)
     }
 }
-
-const link = computed(() => {
-    if (!calendar.value) {
-        return undefined
-    }
-    const path = window.location.toString() + "/share"
-    const url = new URL(path)
-    url.searchParams.set("pwd", calendar.value.password)
-    return url.toString()
-})
 </script>
 
 <template>
@@ -78,7 +70,7 @@ const link = computed(() => {
         </v-col>
     </v-row>
     <v-row>
-        <v-col v-for="door in 24" :key="door" cols="12" sm="6" md="4" lg="3">
+        <v-col v-for="door in 24" :key="door" cols="12" sm="6" lg="3">
             <v-card variant="flat" border>
                 <v-toolbar>
                     <v-card-item>
@@ -109,3 +101,4 @@ const link = computed(() => {
         </v-col>
     </v-row>
 </template>
+

@@ -86,3 +86,4 @@ export default defineNuxtRouteMiddleware(async (to) => {
         return navigateTo(to, { replace: true })
     }
 })
+

@@ -30,11 +30,12 @@ interface PlaybackState {
     paused: boolean
 }
 
-export const usePlayer = async () => {
+export const usePlayer = () => {
     const { sdk, getAccessToken } = useSpotify()
     const error = ref<WebPlaybackError>()
     const playback = ref<PlaybackState>()
     const deviceId = ref<string>()
+    let stateUpdater: NodeJS.Timeout
 
     async function installPlaybackSDK() {
         await new Promise(resolve => {
@@ -58,18 +59,23 @@ export const usePlayer = async () => {
             deviceId.value = p.device_id
             sdk.player.transferPlayback([p.device_id], true)
         });
-        player.addListener('player_state_changed', (s) => {
+        function updateState(s: WebPlaybackState | null) {
             if (!s) {
                 playback.value = undefined
                 return
             }
             playback.value = {
-                track: s.track_window.current_track.uri,
+                track: s.track_window.current_track?.uri ?? "",
                 paused: s.paused,
                 position: s.position
             }
-        })
-        player.connect()
+        }
+        player.addListener('player_state_changed', (s) => updateState(s))
+        await player.connect()
+        stateUpdater = setInterval(async () => {
+            const s = await player.getCurrentState()
+            updateState(s)
+        }, 1000)
     }
 
     function uninstallSpotifySDK() {
@@ -78,6 +84,7 @@ export const usePlayer = async () => {
             return
         }
         script.remove()
+        clearInterval(stateUpdater)
     }
 
     async function playTrack(playlist: Playlist, trackNumber: number) {
@@ -161,7 +168,7 @@ interface WebPlaybackState {
     repeat_mode: number,
     shuffle: boolean,
     track_window: {
-        current_track: WebPlaybackTrack,
+        current_track: WebPlaybackTrack | null,
         previous_tracks: WebPlaybackTrack[],
         next_tracks: WebPlaybackTrack[]
     }

@@ -1,8 +1,9 @@
 import type { SimplifiedPlaylist } from "@spotify/web-api-ts-sdk"
 import { computedAsync } from "@vueuse/core"
 
-export const usePlaylist = async (playlist: MaybeRefOrGetter<SimplifiedPlaylist>) => {
-    const { sdk } = await useSpotify()
+export const useTracks = (playlist: MaybeRefOrGetter<SimplifiedPlaylist>) => {
+    const { sdk } = useSpotify()
+
     const tracks = computedAsync(
         async () => {
             const playlistPage = await sdk.playlists.getPlaylistItems(toValue(playlist).id)
@@ -10,5 +11,6 @@ export const usePlaylist = async (playlist: MaybeRefOrGetter<SimplifiedPlaylist>
             return tracks
         }, []
     )
+
     return { tracks }
 }
