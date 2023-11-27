@@ -2,7 +2,7 @@
 import { useClipboard } from '@vueuse/core';
 
 const props = defineProps<{
-    link: string
+    link?: string
 }>()
 
 const { copied, copy } = useClipboard({ source: props.link })

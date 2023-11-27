@@ -1,60 +1,78 @@
+import type { SimplifiedPlaylist } from "@spotify/web-api-ts-sdk";
 import type { CalendarModel } from "./useCalendars";
+import type Client from "pocketbase";
 
-export interface DayModel {
-    id: string;
-    day: string;
-    image: string;
-    url?: string;
-}
 
 export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter<string>) => {
     const { pb } = usePocketbase()
-    const days = ref<DayModel[]>([])
-    const calendar = ref<CalendarModel>({
-        id: "",
-        user: "",
-        playlist: "",
-        password: "",
-    })
+    const { sdk } = useSpotify()
 
-    function setPwdHeader(password: string) {
-        pb.beforeSend = function(_, options) {
-            if (!options.headers) {
-                options.headers = {}
-            }
-            options.headers['pwd'] = password
-            return {}
-        }
-    }
+    const calendar = ref<Calendar>({
+        id: '',
+        password: '',
+        user: '',
+        days: {}
+    })
 
     const pwdValue = toValue(pwd)
     if (pwdValue) {
-        setPwdHeader(pwdValue)
+        setPwdHeader(pb, pwdValue)
     }
 
-    const fetchDays = async () => {
-        days.value = await pb.collection("days")
+    async function getImageUrl(d: DayModel, fileToken: string) {
+        let url = pb.files.getUrl(d, d.image, { 'token': fileToken })
+        if (toValue(pwd)) {
+            const res = await fetch(url, {
+                headers: new Headers({
+                    "pwd": toValue(pwd) || ''
+                })
+            })
+            const blob = await res.blob()
+            url = URL.createObjectURL(blob)
+        }
+        return url
+    }
+
+    async function fetchDays() {
+        const days = await pb.collection<DayModel>("days")
             .getFullList({ filter: `calendar.id = '${toValue(id)}'` })
 
         const fileToken = await pb.files.getToken()
-        for (const d of days.value) {
-            let url = pb.files.getUrl(d, d.image, { 'token': fileToken })
-            if (toValue(pwd)) {
-                const res = await fetch(url, {
-                    headers: new Headers({
-                        "pwd": toValue(pwd) || ''
-                    })
-                })
-                const blob = await res.blob()
-                url = URL.createObjectURL(blob)
-            }
-            d.url = url
+        calendar.value.days = {}
+        for (const d of days) {
+            d.url = await getImageUrl(d, fileToken)
+            calendar.value.days[d.day] = d
         }
     }
 
-    const fetchCalendar = async () => {
-        calendar.value = await pb.collection("calendars")
+    async function fetchDay(options: { day: string | number, id?: undefined } | { id: string, day?: undefined }) {
+        let filter = `calendar.id = '${toValue(id)} && `
+        if (options.day) {
+            filter += `day = '${options.day}'`
+        } else {
+            filter += `id = '${options.id}'`
+        }
+        const day = await pb.collection<DayModel>("days").getFirstListItem(filter)
+        const fileToken = await pb.files.getToken()
+        day.url = await getImageUrl(day, fileToken)
+        calendar.value.days[day.day] = day
+    }
+
+
+    async function fetchCalendar() {
+        const { id: cid, user, playlist, password } = await pb.collection<CalendarModel>("calendars")
             .getOne(toValue(id))
+        calendar.value.id = cid
+        calendar.value.user = user
+        calendar.value.password = password
+
+        if (playlist) {
+            const p = await sdk.playlists.getPlaylist(playlist)
+            calendar.value.playlist = p
+        } else {
+            const p = await sdk.currentUser.playlists.playlists(1)
+            calendar.value.playlist = p.items[0]
+        }
     }
 
     const createDay = async (image: File, day: number) => {
@@ -63,7 +81,7 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
         formData.append("image", image)
         formData.append("day", day.toString())
         const record = await pb.collection("days").create(formData)
-        fetchDays()
+        fetchDay({ day })
         return record
     }
 
@@ -72,12 +90,13 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
         formData.append("calendar", toValue(id))
         formData.append("image", image)
         const record = await pb.collection("days").update(dayId, formData)
-        fetchDays()
+        fetchDay({ id: dayId })
         return record
     }
 
     const updateCalendar = async (calendar: Partial<CalendarModel> & Pick<CalendarModel, "id">) => {
         await pb.collection("calendars").update(calendar.id, calendar)
+        await fetchCalendar()
     }
 
     const link = computed(() => {
@@ -90,13 +109,37 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
         return url.toString()
     })
 
-    watchEffect(() => {
-        if (toValue(id)) {
-            fetchCalendar()
-            fetchDays()
-        }
-    })
+    async function fetchAll() {
+        fetchCalendar()
+        fetchDays()
+    }
 
-    return { days, createDay, calendar, updateDay, updateCalendar, link }
+    fetchAll()
+
+    return { calendar, updateCalendar, createDay, updateDay, link }
 }
 
+export interface DayModel {
+    id: string;
+    day: string;
+    image: string;
+    url?: string;
+}
+
+interface Calendar {
+    id: string,
+    password: string,
+    user: string,
+    playlist?: SimplifiedPlaylist,
+    days: Record<string, DayModel>
+}
+
+function setPwdHeader(pb: Client, password: string) {
+    pb.beforeSend = function(_, options) {
+        if (!options.headers) {
+            options.headers = {}
+        }
+        options.headers['pwd'] = password
+        return {}
+    }
+}
