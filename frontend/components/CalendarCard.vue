@@ -11,7 +11,7 @@ interface Props {
 withDefaults(defineProps<Props>(), { isPlaying: false })
 const emit = defineEmits(['play', 'stop', 'upload'])
 
-const input = ref<HTMLInputElement>(null)
+const input = ref<HTMLInputElement | null>(null)
 
 const handleFileSelected = () => {
     const files = input.value?.files
@@ -32,7 +32,7 @@ const handleFileSelected = () => {
                 <v-card-subtitle>{{ trackName }}</v-card-subtitle>
             </v-card-item>
             <template v-slot:append>
-                <v-btn @click="() => input.click()" accept="image/*" icon="mdi-upload" size="small" />
+                <v-btn @click="() => input?.click()" accept="image/*" icon="mdi-upload" size="small" />
                 <v-btn v-if="!isPlaying" @click="() => $emit('play')" icon="mdi-play" size="small" />
                 <v-btn v-else @click="() => $emit('stop')" icon="mdi-stop" size="small" />
             </template>

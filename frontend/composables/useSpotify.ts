@@ -1,4 +1,4 @@
-import { SpotifyApi, type Playlist, AuthorizationCodeWithPKCEStrategy } from "@spotify/web-api-ts-sdk";
+import { SpotifyApi, type Playlist, AuthorizationCodeWithPKCEStrategy, type SimplifiedPlaylist } from "@spotify/web-api-ts-sdk";
 
 const scopes = ['streaming', 'user-read-email', 'user-read-private']
 
@@ -87,7 +87,7 @@ export const usePlayer = () => {
         clearInterval(stateUpdater)
     }
 
-    async function playTrack(playlist: Playlist, trackNumber: number) {
+    async function playTrack(playlist: Pick<SimplifiedPlaylist, "uri">, trackNumber: number) {
         if (!deviceId.value) {
             throw "Device id is undefined"
         }

@@ -1,4 +1,4 @@
-import type { SimplifiedPlaylist } from "@spotify/web-api-ts-sdk";
+import type { PlaylistedTrack, SimplifiedPlaylist } from "@spotify/web-api-ts-sdk";
 import type { CalendarModel } from "./useCalendars";
 import type Client from "pocketbase";
 
@@ -11,7 +11,8 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
         id: '',
         password: '',
         user: '',
-        days: {}
+        days: {},
+        playlistItems: []
     })
 
     const pwdValue = toValue(pwd)
@@ -35,7 +36,7 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
 
     async function fetchDays() {
         const days = await pb.collection<DayModel>("days")
-            .getFullList({ filter: `calendar.id = '${toValue(id)}'` })
+            .getFullList({ filter: `calendar.id="${toValue(id)}"` })
 
         const fileToken = await pb.files.getToken()
         calendar.value.days = {}
@@ -46,11 +47,11 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
     }
 
     async function fetchDay(options: { day: string | number, id?: undefined } | { id: string, day?: undefined }) {
-        let filter = `calendar.id = '${toValue(id)} && `
+        let filter = `calendar.id='${toValue(id)}'&&`
         if (options.day) {
-            filter += `day = '${options.day}'`
+            filter += `day='${options.day}'`
         } else {
-            filter += `id = '${options.id}'`
+            filter += `id='${options.id}'`
         }
         const day = await pb.collection<DayModel>("days").getFirstListItem(filter)
         const fileToken = await pb.files.getToken()
@@ -66,13 +67,14 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOrGetter
         calendar.value.user = user
         calendar.value.password = password
 
+        let p: SimplifiedPlaylist
         if (playlist) {
-            const p = await sdk.playlists.getPlaylist(playlist)
-            calendar.value.playlist = p
+            p = await sdk.playlists.getPlaylist(playlist)
         } else {
-            const p = await sdk.currentUser.playlists.playlists(1)
-            calendar.value.playlist = p.items[0]
+            p = (await sdk.currentUser.playlists.playlists(1)).items[0]
         }
+        calendar.value.playlist = p
+        calendar.value.playlistItems = (await sdk.playlists.getPlaylistItems(p.id)).items
     }
 
     const createDay = async (image: File, day: number) => {
@@ -131,6 +133,7 @@ interface Calendar {
     password: string,
     user: string,
     playlist?: SimplifiedPlaylist,
+    playlistItems: PlaylistedTrack[]
     days: Record<string, DayModel>
 }
 
