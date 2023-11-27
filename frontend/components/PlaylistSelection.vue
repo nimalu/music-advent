@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import type { SimplifiedPlaylist } from '@spotify/web-api-ts-sdk';
-
+import type { SimplifiedPlaylist } from "@spotify/web-api-ts-sdk";
 
 defineProps<{
-    playlists: SimplifiedPlaylist[],
-    modelValue?: SimplifiedPlaylist
-}>()
+    playlists: SimplifiedPlaylist[];
+    modelValue?: SimplifiedPlaylist;
+    loading?: boolean;
+}>();
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
+function handleUpdate(p: SimplifiedPlaylist) {
+    console.log(p)
+    emit("update:modelValue", p);
+    const activeElement = document.activeElement as HTMLElement | undefined;
+    activeElement?.blur();
+}
 </script>
 
 <template>
@@ -17,10 +23,23 @@ const emit = defineEmits(['update:modelValue'])
             <v-img :src="modelValue.images[0].url" cover />
         </v-col>
         <v-col v-if="playlists">
-            <v-autocomplete auto-select-first @update:model-value="(e) => emit('update:modelValue', e)" label="Playlist"
-                :model-value="modelValue" :items="playlists" item-value="id" return-object item-title="name">
+            <v-autocomplete
+                auto-select-first
+                @update:model-value="handleUpdate"
+                label="Playlist"
+                :model-value="modelValue"
+                :items="playlists"
+                item-value="id"
+                return-object
+                item-title="name"
+                :loading="loading"
+            >
                 <template v-slot:item="{ props, item }">
-                    <v-list-item v-bind="props" :prepend-avatar="item.raw.images[0].url" :title="item.title" />
+                    <v-list-item
+                        v-bind="props"
+                        :prepend-avatar="item.raw.images[0].url"
+                        :title="item.title"
+                    />
                 </template>
             </v-autocomplete>
         </v-col>
