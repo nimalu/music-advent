@@ -76,8 +76,8 @@ export const useCalendar = async (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOr
         return record
     }
 
-    const updateCalendar = async (calendar: CalendarModel) => {
-        await pb.collection("calendar").update(calendar.id, calendar)
+    const updateCalendar = async (calendar: Partial<CalendarModel> & Pick<CalendarModel, "id">) => {
+        await pb.collection("calendars").update(calendar.id, calendar)
     }
 
     const link = computed(() => {
@@ -99,3 +99,4 @@ export const useCalendar = async (id: MaybeRefOrGetter<string>, pwd?: MaybeRefOr
 
     return { days, createDay, calendar, updateDay, updateCalendar, link }
 }
+

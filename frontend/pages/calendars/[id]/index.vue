@@ -6,7 +6,7 @@ definePageMeta({ middleware: ['auth'] })
 
 const route = useRoute()
 const calendarId = route.params.id as string
-const { days, createDay, calendar, updateDay, link } = await useCalendar(calendarId)
+const { days, createDay, calendar, updateDay, link, updateCalendar } = await useCalendar(calendarId)
 
 const { playlists } = await usePlaylists()
 const selectedPlaylist = ref(playlists.value[0])
@@ -47,6 +47,11 @@ const handleFileSelected = () => {
 }
 
 const { copied, copy } = useClipboard({ source: link })
+
+function updatePlaylist(playlist: typeof selectedPlaylist.value) {
+    updateCalendar({id: calendar.value.id, playlist: playlist.id})
+}
+
 </script>
 
 <template>
@@ -57,8 +62,8 @@ const { copied, copy } = useClipboard({ source: link })
             <v-img :src="selectedPlaylist.images[0].url" cover />
         </v-col>
         <v-col>
-            <v-autocomplete auto-select-first label="Playlist" v-model="selectedPlaylist" :items="playlists" item-value="id"
-                return-object item-title="name">
+            <v-autocomplete auto-select-first @update:model-value="updatePlaylist" label="Playlist"
+                v-model="selectedPlaylist" :items="playlists" item-value="id" return-object item-title="name">
                 <template v-slot:item="{ props, item }">
                     <v-list-item v-bind="props" :prepend-avatar="item.raw.images[0].url" :title="item.title" />
                 </template>
