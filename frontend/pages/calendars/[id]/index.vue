@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useClipboard } from '@vueuse/core';
+
 
 definePageMeta({ middleware: ['auth'] })
 
@@ -43,6 +45,8 @@ const handleFileSelected = () => {
         createDay(file, selectedDoor)
     }
 }
+
+const { copied, copy } = useClipboard({ source: link })
 </script>
 
 <template>
@@ -65,7 +69,7 @@ const handleFileSelected = () => {
         <v-col cols="12">
             <div class="d-flex align-center border px-3 py-2 justify-space-between">
                 <p class="text-no-wrap text-truncate mr-2">{{ link }}</p>
-                <v-btn color="secondary" variant="flat">Copy</v-btn>
+                <v-btn @click="() => copy(link)" color="secondary" variant="flat">{{ copied ? "Copied" : "Copy" }}</v-btn>
             </div>
         </v-col>
     </v-row>
@@ -90,14 +94,6 @@ const handleFileSelected = () => {
                 </v-toolbar>
                 <v-img :src="getImageOfDay(door)" :height="200" />
             </v-card>
-        </v-col>
-    </v-row>
-    <v-row v-if="calendar">
-        <v-col cols="12">
-            <div class="d-flex align-center border px-3 py-2 justify-space-between">
-                <p class="text-no-wrap text-truncate mr-2">{{ link }}</p>
-                <v-btn color="secondary" variant="flat">Copy</v-btn>
-            </div>
         </v-col>
     </v-row>
 </template>
