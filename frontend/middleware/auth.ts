@@ -79,11 +79,12 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
     if (!isFromRedirect()) {
         const url = await createRedirectionURL()
+        window.localStorage.setItem("redirectionLocation", to.fullPath)
         return navigateTo(url, { external: true })
     } else {
         await issueAccessToken()
-        to.query = {}
-        return navigateTo(to, { replace: true })
+        const location = window.localStorage.getItem("redirectionLocation")
+        return navigateTo(location, { replace: true })
     }
 })
 

@@ -46,7 +46,7 @@ const { days } = useDays(calendarId);
                 :loading="day.loading"
                 @play="() => calendar.playlist ? playTrack(calendar.playlist, index) : undefined"
                 @stop="() => pause()"
-                :is-playing="playback && playback.track == day.track?.track.uri && !playback.paused"
+                :is-playing="playback && playback.track == day.track?.track?.uri && !playback.paused"
             />
         </v-col>
     </v-row>

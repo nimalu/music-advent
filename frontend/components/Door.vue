@@ -9,12 +9,21 @@ const styleObject = computed(() => ({
 </script>
 
 <template>
-    <v-sheet
-        color="grey-lighten-3"
-        rounded
-        class="pa-2 justify-center align-center d-flex"
+    <button
+        class="door"
         :style="styleObject"
     >
         {{ door }}
-    </v-sheet>
+    </button>
 </template>
+
+<style>
+.door {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #D8D8D7;
+    border-radius: 0.2rem;
+}
+</style>
+

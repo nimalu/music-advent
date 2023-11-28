@@ -1,6 +1,5 @@
 import {
     SpotifyApi,
-    type Playlist,
     AuthorizationCodeWithPKCEStrategy,
     type SimplifiedPlaylist,
     type PlaybackState,
@@ -41,9 +40,13 @@ const playback = ref<PlayerState>();
 const deviceId = ref<string>();
 export const usePlayer = () => {
     const { sdk, getAccessToken } = useSpotify();
-    let stateUpdater: NodeJS.Timeout;
 
     async function installPlaybackSDK() {
+        const script = document.querySelector("#spotify-sdk");
+        if (script) {
+            console.warn("Spotify sdk already installed.")
+            return;
+        }
         await new Promise((resolve) => {
             window.onSpotifyWebPlaybackSDKReady = resolve;
             const script = document.createElement("script");
@@ -93,8 +96,8 @@ export const usePlayer = () => {
         if (!script) {
             return;
         }
+        pause()
         script.remove();
-        clearInterval(stateUpdater);
     }
 
     async function playTrack(
