@@ -22,6 +22,7 @@ const handleFileSelected = () => {
     const file = files[0];
     emit("upload", file);
 };
+
 </script>
 
 <template>

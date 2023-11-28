@@ -3,6 +3,7 @@ import {
     type Playlist,
     AuthorizationCodeWithPKCEStrategy,
     type SimplifiedPlaylist,
+    type PlaybackState,
 } from "@spotify/web-api-ts-sdk";
 
 const scopes = ["streaming", "user-read-email", "user-read-private"];
@@ -29,17 +30,17 @@ export const useSpotify = () => {
     return { sdk, getAccessToken };
 };
 
-interface PlaybackState {
+interface PlayerState {
     track: string;
     position: number;
     paused: boolean;
 }
 
+const error = ref<WebPlaybackError>();
+const playback = ref<PlayerState>();
+const deviceId = ref<string>();
 export const usePlayer = () => {
     const { sdk, getAccessToken } = useSpotify();
-    const error = ref<WebPlaybackError>();
-    const playback = ref<PlaybackState>();
-    const deviceId = ref<string>();
     let stateUpdater: NodeJS.Timeout;
 
     async function installPlaybackSDK() {
@@ -64,23 +65,27 @@ export const usePlayer = () => {
             deviceId.value = p.device_id;
             sdk.player.transferPlayback([p.device_id], true);
         });
-        function updateState(s: WebPlaybackState | null) {
+        function updateState(s: PlaybackState | WebPlaybackState | null) {
             if (!s) {
                 playback.value = undefined;
-                return;
+            } else if ("item" in s) {
+                s = s as PlaybackState;
+                playback.value = {
+                    track: s.item.uri,
+                    paused: !s.is_playing,
+                    position: s.progress_ms,
+                };
+            } else {
+                s = s as WebPlaybackState;
+                playback.value = {
+                    track: s.track_window.current_track?.uri ?? "",
+                    paused: s.paused,
+                    position: s.position,
+                };
             }
-            playback.value = {
-                track: s.track_window.current_track?.uri ?? "",
-                paused: s.paused,
-                position: s.position,
-            };
         }
         player.addListener("player_state_changed", (s) => updateState(s));
         await player.connect();
-        stateUpdater = setInterval(async () => {
-            const s = await player.getCurrentState();
-            updateState(s);
-        }, 1000);
     }
 
     function uninstallSpotifySDK() {

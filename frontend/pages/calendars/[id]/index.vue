@@ -44,6 +44,9 @@ const { days } = useDays(calendarId);
                 :track-name="day.track?.track?.name"
                 :img="day.content?.url"
                 :loading="day.loading"
+                @play="() => calendar.playlist ? playTrack(calendar.playlist, index) : undefined"
+                @stop="() => pause()"
+                :is-playing="playback && playback.track == day.track?.track.uri && !playback.paused"
             />
         </v-col>
     </v-row>
