@@ -5,39 +5,17 @@ definePageMeta({ middleware: ["auth"] });
 
 const route = useRoute();
 const calendarId = route.params.id as string;
-const { calendar, link, updateCalendar, loading } = useCalendar(calendarId);
+const { calendar, link, setPlaylist, loading } = useCalendar(calendarId);
 
 const { playlists } = await usePlaylists();
 
 const { playTrack, pause, playback } = usePlayer();
 
 function selectPlaylist(p: SimplifiedPlaylist) {
-    updateCalendar({ id: calendarId, playlist: p.id });
+    setPlaylist({ id: calendarId }, p);
 }
 
-function playCard(door: number) {
-    const playlist = calendar.value.playlist;
-    if (playlist) {
-        playTrack(playlist, door - 1);
-    }
-}
-
-function isCardPlaying(door: number) {
-    const items = calendar.value.playlistItems;
-    if (items.length < door) {
-        return false;
-    }
-    const track = items[door - 1];
-    return track.track.uri == playback.value?.track && !playback.value.paused;
-}
-
-function upload(door: number, file: File) {
-    if (door.toString() in calendar.value.days) {
-        updateDay(file, calendar.value.days[door.toString()].id);
-    } else {
-        createDay(file, door);
-    }
-}
+const { days } = useDays(calendarId);
 </script>
 
 <template>
@@ -54,6 +32,19 @@ function upload(door: number, file: File) {
         </v-col>
     </v-row>
     <v-row>
-        <v-col v-for="door in 24" :key="door" cols="12" sm="6" lg="3"> </v-col>
+        <v-col
+            v-for="(day, index) in days"
+            :key="index"
+            cols="12"
+            sm="6"
+            lg="3"
+        >
+            <CalendarCard
+                :door="index + 1"
+                :track-name="day.track?.track?.name"
+                :img="day.content?.url"
+                :loading="day.loading"
+            />
+        </v-col>
     </v-row>
 </template>

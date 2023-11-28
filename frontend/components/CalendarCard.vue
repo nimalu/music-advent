@@ -6,6 +6,7 @@ interface Props {
     trackName?: string;
     img?: string;
     isPlaying?: boolean;
+    loading?: boolean;
 }
 
 withDefaults(defineProps<Props>(), { isPlaying: false });
@@ -30,7 +31,7 @@ const handleFileSelected = () => {
         ref="input"
         style="visibility: hidden"
     />
-    <v-card variant="flat" border>
+    <v-card variant="flat" border :loading="loading">
         <v-toolbar>
             <v-card-item>
                 <v-card-title>Door {{ door }}</v-card-title>
@@ -48,12 +49,14 @@ const handleFileSelected = () => {
                     @click="() => $emit('play')"
                     icon="mdi-play"
                     size="small"
+                    :disabled="!trackName"
                 />
                 <v-btn
                     v-else
                     @click="() => $emit('stop')"
                     icon="mdi-stop"
                     size="small"
+                    :disabled="!trackName"
                 />
             </template>
         </v-toolbar>

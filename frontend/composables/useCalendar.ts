@@ -5,24 +5,24 @@ import type {
 import type { CalendarModel } from "./useCalendars";
 import type Client from "pocketbase";
 
-export const useCalendar = (id: string, pwd?: string) => {
+const calendar = ref<Calendar>({
+    id: "",
+    password: "",
+    user: "",
+    playlistItems: [],
+});
+const loading = ref(false);
+
+export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: string) => {
     const { pb } = usePocketbase();
     const { sdk } = useSpotify();
-
-    const calendar = ref<Calendar>({
-        id: "",
-        password: "",
-        user: "",
-        playlistItems: [],
-    });
-    const loading = ref(false)
 
     if (pwd) {
         setPwdHeader(pb, pwd);
     }
 
     async function fetchCalendar() {
-        loading.value = true
+        loading.value = true;
 
         let calendarId = toValue(id);
         const {
@@ -44,15 +44,24 @@ export const useCalendar = (id: string, pwd?: string) => {
         const itemPage = await sdk.playlists.getPlaylistItems(playlist.id);
         calendar.value.playlistItems = itemPage.items;
 
-        loading.value = false
+        loading.value = false;
     }
 
     const updateCalendar = async (
         calendar: Partial<CalendarModel> & Pick<CalendarModel, "id">
     ) => {
+        loading.value = true;
         await pb.collection("calendars").update(calendar.id, calendar);
         await fetchCalendar();
     };
+
+    async function setPlaylist(
+        c: Pick<CalendarModel, "id">,
+        playlist: SimplifiedPlaylist
+    ) {
+        calendar.value.playlist = playlist;
+        return updateCalendar({ ...c, playlist: playlist.id });
+    }
 
     const link = computed(() => {
         if (!calendar.value) {
@@ -64,9 +73,13 @@ export const useCalendar = (id: string, pwd?: string) => {
         return url.toString();
     });
 
+    watch(
+        () => toValue(id),
+        () => fetchCalendar()
+    );
     fetchCalendar();
 
-    return { calendar, updateCalendar, link, loading };
+    return { calendar, setPlaylist, link, loading };
 };
 
 export interface DayModel {

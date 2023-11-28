@@ -10,7 +10,6 @@ defineProps<{
 const emit = defineEmits(["update:modelValue"]);
 
 function handleUpdate(p: SimplifiedPlaylist) {
-    console.log(p)
     emit("update:modelValue", p);
     const activeElement = document.activeElement as HTMLElement | undefined;
     activeElement?.blur();
@@ -45,3 +44,4 @@ function handleUpdate(p: SimplifiedPlaylist) {
         </v-col>
     </v-row>
 </template>
+
