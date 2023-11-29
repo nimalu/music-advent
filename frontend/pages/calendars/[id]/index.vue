@@ -15,7 +15,15 @@ function selectPlaylist(p: SimplifiedPlaylist) {
     setPlaylist({ id: calendarId }, p);
 }
 
-const { days } = useDays(calendarId);
+const { days, createDay, updateDay } = useDays(calendarId);
+
+function handleUpload(day: typeof days.value[0], file: File, door: number) {
+    if (day.content) {
+        updateDay(file, day.content.id)
+    } else {
+        createDay(file, door)
+    }
+}
 </script>
 
 <template>
@@ -47,6 +55,7 @@ const { days } = useDays(calendarId);
                 @play="() => calendar.playlist ? playTrack(calendar.playlist, index) : undefined"
                 @stop="() => pause()"
                 :is-playing="playback && playback.track == day.track?.track?.uri && !playback.paused"
+                @upload="(f) => handleUpload(day, f, index + 1)"
             />
         </v-col>
     </v-row>

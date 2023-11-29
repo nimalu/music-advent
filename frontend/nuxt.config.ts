@@ -10,7 +10,7 @@ export default defineNuxtConfig({
         },
     ],
     routeRules: {
-        '/**': { ssr: false },
+        '/calendars/**': { ssr: false },
     },
     runtimeConfig: {
         SPOTIFY_CLIENT_SECRET: "top_secret",

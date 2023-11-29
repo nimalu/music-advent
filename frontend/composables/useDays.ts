@@ -66,7 +66,7 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
         }
         const daysRaw = await pb
             .collection<DayModel>("days")
-            .getFullList({ filter: `calendar.id="${calendarId}"` });
+            .getFullList({ filter: `calendar.id="${toValue(calendarId)}"` });
 
         const fileToken = await pb.files.getToken();
         for (const dayContent of daysRaw) {
@@ -85,7 +85,7 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
             | { day: string | number; id?: undefined }
             | { id: string; day?: undefined }
     ) {
-        let filter = `calendar.id='${calendarId}'&&`;
+        let filter = `calendar.id='${toValue(calendarId)}'&&`;
         if (options.day) {
             filter += `day='${options.day}'`;
             const door = Number.parseInt(options.day.toString());
@@ -105,7 +105,7 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
 
     const createDay = async (image: File, day: number) => {
         const formData = new FormData();
-        formData.append("calendar", calendarId);
+        formData.append("calendar", toValue(calendarId));
         formData.append("image", image);
         formData.append("day", day.toString());
         const record = await pb.collection("days").create(formData);
@@ -115,7 +115,7 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
 
     const updateDay = async (image: File, dayId: string) => {
         const formData = new FormData();
-        formData.append("calendar", calendarId);
+        formData.append("calendar", toValue(calendarId));
         formData.append("image", image);
         const record = await pb.collection("days").update(dayId, formData);
         fetchDay({ id: dayId });
