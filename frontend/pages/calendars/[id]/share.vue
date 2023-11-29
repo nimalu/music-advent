@@ -49,7 +49,7 @@ function revealDay(door: number) {
                 </div>
             </button>
             <div class="track" v-if="day.track && today > index">
-                {{ day.track.track.name }}
+                {{ day.track.name }}
             </div>
         </div>
     </div>
