@@ -66,7 +66,7 @@ export const usePlayer = () => {
         player.addListener("playback_error", (e) => (error.value = e));
         player.addListener("ready", async (p) => {
             deviceId.value = p.device_id;
-            sdk.player.transferPlayback([p.device_id], true);
+            sdk.player.transferPlayback([p.device_id], false);
         });
         function updateState(s: PlaybackState | WebPlaybackState | null) {
             if (!s) {
