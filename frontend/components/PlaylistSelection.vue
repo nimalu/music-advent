@@ -17,31 +17,33 @@ function handleUpdate(p: SimplifiedPlaylist) {
 </script>
 
 <template>
-    <v-row dense>
-        <v-col cols="4" sm="3" md="2" lg="1" v-if="modelValue">
-            <v-img :src="modelValue.images[0].url" cover />
-        </v-col>
-        <v-col v-if="playlists">
-            <v-autocomplete
-                auto-select-first
-                @update:model-value="handleUpdate"
-                label="Playlist"
-                :model-value="modelValue"
-                :items="playlists"
-                item-value="id"
-                return-object
-                item-title="name"
-                :loading="loading"
-            >
-                <template v-slot:item="{ props, item }">
-                    <v-list-item
-                        v-bind="props"
-                        :prepend-avatar="item.raw.images[0].url"
-                        :title="item.title"
-                    />
-                </template>
-            </v-autocomplete>
-        </v-col>
-    </v-row>
+    <div class="playlist-selection">
+        <v-autocomplete
+            auto-select-first
+            @update:model-value="handleUpdate"
+            label="Playlist"
+            :model-value="modelValue"
+            :items="playlists"
+            item-value="id"
+            return-object
+            item-title="name"
+            :loading="loading"
+            hide-details
+        >
+            <template v-slot:item="{ props, item }">
+                <v-list-item
+                    v-bind="props"
+                    :prepend-avatar="item.raw.images[0].url"
+                    :title="item.title"
+                />
+            </template>
+        </v-autocomplete>
+        <v-img v-if="modelValue" :src="modelValue.images[0].url" cover />
+    </div>
 </template>
 
+<style>
+.playlist-selection > * + * {
+    margin-top: 8px;
+}
+</style>

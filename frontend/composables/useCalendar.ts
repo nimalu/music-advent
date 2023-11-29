@@ -9,7 +9,6 @@ const calendar = ref<Calendar>({
     id: "",
     password: "",
     user: "",
-    playlistItems: [],
     name: "",
 });
 const loading = ref(false);
@@ -30,12 +29,12 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: string) => {
             user,
             playlist: playlistId,
             password,
-            name
+            name,
         } = await pb.collection<CalendarModel>("calendars").getOne(calendarId);
         calendar.value.id = calendarId;
         calendar.value.user = user;
         calendar.value.password = password;
-        calendar.value.name = name
+        calendar.value.name = name || "";
 
         let playlist: SimplifiedPlaylist;
         if (playlistId) {
@@ -44,8 +43,6 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: string) => {
             playlist = (await sdk.currentUser.playlists.playlists(1)).items[0];
         }
         calendar.value.playlist = playlist;
-        const itemPage = await sdk.playlists.getPlaylistItems(playlist.id);
-        calendar.value.playlistItems = itemPage.items;
 
         loading.value = false;
     }
@@ -97,7 +94,6 @@ interface Calendar {
     password: string;
     user: string;
     playlist?: SimplifiedPlaylist;
-    playlistItems: PlaylistedTrack[];
     name: string;
 }
 

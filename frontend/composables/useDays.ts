@@ -1,8 +1,14 @@
 import type { PlaylistedTrack } from "@spotify/web-api-ts-sdk";
 
+export interface Track {
+    name: string;
+    artists: { name: string }[];
+    uri: string;
+}
+
 interface Day {
     content?: DayModel;
-    track?: PlaylistedTrack;
+    track?: Track;
     loading: boolean;
 }
 
@@ -29,12 +35,17 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
             }
             return;
         }
-        const tracksPage = await sdk.playlists.getPlaylistItems(playlist.id);
-        const items = tracksPage.items;
+        const tracksPage = await sdk.playlists.getPlaylistItems(
+            playlist.id,
+            undefined,
+            "items(track(name,uri,artists(name)))",
+            24
+        );
+        const items = tracksPage.items as { track: Track }[];
 
         for (let i = 0; i < days.value.length; i++) {
             if (i < items.length) {
-                days.value[i].track = items[i];
+                days.value[i].track = items[i].track;
             } else {
                 days.value[i].track = undefined;
             }
@@ -44,7 +55,7 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
         () => calendar.value.playlist,
         () => fetchPlaylist()
     );
-    fetchPlaylist()
+    fetchPlaylist();
 
     async function getImageUrl(d: DayModel, fileToken: string) {
         let url = pb.files.getUrl(d, d.image, { token: fileToken });
