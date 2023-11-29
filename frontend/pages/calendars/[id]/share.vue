@@ -21,7 +21,7 @@ const { days } = useDays(calendarId, password);
 
 const activeDay = ref<number>(-1);
 function revealDay(door: number) {
-    if (today < door) {
+    if (today < door || locked) {
         return;
     }
     activeDay.value = door;
