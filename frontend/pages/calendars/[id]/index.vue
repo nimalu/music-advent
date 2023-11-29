@@ -27,7 +27,7 @@ function handleUpload(day: typeof days.value[0], file: File, door: number) {
 </script>
 
 <template>
-    <v-breadcrumbs :items="['Calendars', calendar.id]" />
+    <v-breadcrumbs :items="['Calendars', calendar.name]" />
     <PlaylistSelection
         :playlists="playlists"
         :model-value="calendar.playlist"

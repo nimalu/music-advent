@@ -10,6 +10,7 @@ const calendar = ref<Calendar>({
     password: "",
     user: "",
     playlistItems: [],
+    name: "",
 });
 const loading = ref(false);
 
@@ -29,10 +30,12 @@ export const useCalendar = (id: MaybeRefOrGetter<string>, pwd?: string) => {
             user,
             playlist: playlistId,
             password,
+            name
         } = await pb.collection<CalendarModel>("calendars").getOne(calendarId);
         calendar.value.id = calendarId;
         calendar.value.user = user;
         calendar.value.password = password;
+        calendar.value.name = name
 
         let playlist: SimplifiedPlaylist;
         if (playlistId) {
@@ -95,6 +98,7 @@ interface Calendar {
     user: string;
     playlist?: SimplifiedPlaylist;
     playlistItems: PlaylistedTrack[];
+    name: string;
 }
 
 function setPwdHeader(pb: Client, password: string) {
