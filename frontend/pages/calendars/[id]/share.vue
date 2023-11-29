@@ -11,6 +11,7 @@ const password = (() => {
 })();
 const today = new Date().getDate();
 const preview = "preview" in route.query
+const locked = new Date().getMonth() == 10
 
 const { calendar } = useCalendar(calendarId, password);
 
@@ -35,7 +36,7 @@ function revealDay(door: number) {
         <div class="media-element" v-for="(day, index) in days" :key="index">
             <button class="card" @click="() => revealDay(index + 1)">
                 <img
-                    v-if="day.content && (today > index || preview)"
+                    v-if="day.content && (today > index && !locked || preview)"
                     :src="day.content?.url"
                     alt=""
                 />
@@ -43,13 +44,13 @@ function revealDay(door: number) {
                     class="overlay"
                     :class="{
                         revealed: index + 1 == activeDay,
-                        locked: index + 1 > today || !preview,
+                        locked: (index + 1 > today || locked) && !preview,
                     }"
                 >
                     {{ index + 1 }}
                 </div>
             </button>
-            <div class="track" v-if="day.track && (today > index || preview)">
+            <div class="track" v-if="day.track && (today > index && !locked || preview)">
                 {{ day.track.name }}
             </div>
         </div>
