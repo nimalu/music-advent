@@ -10,8 +10,8 @@ const password = (() => {
     }
 })();
 const today = new Date().getDate();
-const preview = "preview" in route.query
-const locked = new Date().getMonth() == 10
+const preview = "preview" in route.query;
+const locked = new Date().getMonth() == 10;
 
 const { calendar } = useCalendar(calendarId, password);
 
@@ -19,123 +19,115 @@ const { playTrack } = usePlayer();
 
 const { days } = useDays(calendarId, password);
 
-const activeDay = ref<number>(-1);
-function revealDay(door: number) {
-    if (today < door || locked) {
-        return;
-    }
-    activeDay.value = door;
-    if (calendar.value.playlist) {
-        playTrack(calendar.value.playlist, door - 1);
+const activeDay = ref<number>(7);
+
+function openDay(day: number) {
+    activeDay.value = day;
+}
+
+function handleSlideClick(e: MouseEvent) {
+    const imgElement = e.target as HTMLImageElement;
+    const x = e.x - imgElement.x;
+    if (x < imgElement.width / 3) {
+        openDay(Math.max(0, activeDay.value - 1));
+    } else if (x > (imgElement.width / 3) * 2) {
+        openDay(Math.min(days.value.length - 1, activeDay.value + 1));
     }
 }
 </script>
 
 <template>
-    <div class="media-scroller snaps-inline">
-        <div class="media-element" v-for="(day, index) in days" :key="index">
-            <button class="card" @click="() => revealDay(index + 1)">
-                <img
-                    v-if="day.content && (today > index && !locked || preview)"
-                    :src="day.content?.url"
-                    alt=""
-                />
-                <div
-                    class="overlay"
-                    :class="{
-                        revealed: index + 1 == activeDay,
-                        locked: (index + 1 > today || locked) && !preview,
-                    }"
-                >
-                    {{ index + 1 }}
-                </div>
-            </button>
-            <div class="track" v-if="day.track && (today > index && !locked || preview)">
-                {{ day.track.name }}
+    <div class="container">
+        <ul class="slides">
+            <li
+                v-for="(day, index) in days"
+                :key="index"
+                :class="{ active: index == activeDay }"
+            ></li>
+        </ul>
+        <div class="door">
+            <img
+                v-for="(day, index) in days"
+                :key="index"
+                :src="day.content?.url"
+                :class="{hidden: index != activeDay}"
+                @click="handleSlideClick"
+            />
+            <div class="door-label">
+                {{ activeDay + 1 }}
             </div>
         </div>
     </div>
 </template>
 
-<style>
-:root {
-    --shadow-color: 257deg 35% 80%;
-    --shadow-elevation-low: 1px 1px 1.6px hsl(var(--shadow-color) / 0.24),
-        1.5px 1.5px 2.4px -1.3px hsl(var(--shadow-color) / 0.24),
-        3.3px 3.4px 5.3px -2.5px hsl(var(--shadow-color) / 0.23);
-    --shadow-elevation-medium: 1px 1px 1.6px hsl(var(--shadow-color) / 0.25),
-        2.8px 2.9px 4.5px -0.8px hsl(var(--shadow-color) / 0.25),
-        6.9px 7px 11px -1.7px hsl(var(--shadow-color) / 0.25),
-        16.7px 16.9px 26.6px -2.5px hsl(var(--shadow-color) / 0.24);
-    --shadow-elevation-high: 1px 1px 1.6px hsl(var(--shadow-color) / 0.23),
-        4.2px 4.3px 6.7px -0.4px hsl(var(--shadow-color) / 0.23),
-        7.6px 7.7px 12.1px -0.7px hsl(var(--shadow-color) / 0.23),
-        12.3px 12.5px 19.6px -1.1px hsl(var(--shadow-color) / 0.23),
-        19.5px 19.8px 31.1px -1.5px hsl(var(--shadow-color) / 0.23),
-        30.5px 30.9px 48.5px -1.8px hsl(var(--shadow-color) / 0.23),
-        46.3px 46.9px 73.6px -2.2px hsl(var(--shadow-color) / 0.23),
-        68.1px 69px 108.3px -2.5px hsl(var(--shadow-color) / 0.22);
+<style scoped>
+.hidden {
+    opacity: 0;
 }
-
-.media-scroller {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: 90%;
-    gap: 1.8rem;
-    overscroll-behavior-inline: contain;
-    padding: 0rem 5%;
-    margin-top: 2.5rem;
-    overflow-x: scroll;
-}
-
-.media-element > .card {
-    height: 70dvh;
+.container {
+    background-color: #111;
     width: 100%;
+    height: 100%;
+    padding: 16px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+}
+
+.container > * + * {
+    margin-bottom: 16px;
+}
+
+.slides {
+    display: flex;
+    list-style-type: none;
+    column-gap: 3px;
+}
+
+.slides > * {
+    background-color: #444;
+    height: 6px;
+    flex-grow: 1;
+    border-radius: 2px;
+}
+
+.slides > .active {
+    background-color: #ccc;
+}
+
+.door {
+    --christmas: #ab1443;
+    width: 100%;
+    font-weight: bold;
+    font-size: 3rem;
+    background-color: var(--christmas);
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: var(--shadow-elevation-medium);
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
 }
 
-.card > .overlay {
+.door > img {
     position: absolute;
-    inset: 0 0 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(240, 240, 240, 0.9);
-    font-size: 2rem;
-    font-weight: bold;
-    transition: opacity 0.2s;
-}
-
-.card > .overlay.revealed {
-    opacity: 0;
-}
-
-.card > .overlay.locked {
-    color: #888;
-
-}
-
-.card > img {
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.snaps-inline {
-    scroll-snap-type: inline mandatory;
-}
-
-.snaps-inline > * {
-    scroll-snap-align: center;
-}
-
-.track {
-    width: 100%;
-    text-align: center;
-    padding: 1rem 1rem;
-    font-size: 1.2rem;
+.door-label {
+    background-color: white;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 100%;
+    color: var(--christmas);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
