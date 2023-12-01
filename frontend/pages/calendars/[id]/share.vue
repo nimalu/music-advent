@@ -9,8 +9,8 @@ const password = (() => {
         return "---";
     }
 })();
-const today = new Date().getDate();
 const preview = "preview" in route.query;
+const today = preview ? 30 : new Date().getDate();
 
 const { calendar } = useCalendar(calendarId, password);
 
@@ -18,16 +18,20 @@ const { playTrack } = usePlayer();
 
 const { days } = useDays(calendarId, password);
 
-const activeDay = ref<number>(7);
+const activeDay = ref<number>(today - 1);
 const dayRevealed = ref(false);
 
 function revealDay() {
     dayRevealed.value = true;
+    if (!calendar.value.playlist) {
+        return
+    }
+    playTrack(calendar.value.playlist, activeDay.value)
 }
 
 function openDay(day: number) {
     if (day == activeDay.value) {
-        return
+        return;
     }
     dayRevealed.value = false;
     activeDay.value = day;
@@ -64,7 +68,15 @@ function handleSlideClick(e: MouseEvent) {
             <div class="door-label">
                 {{ activeDay + 1 }}
             </div>
-            <Lock :disabled="today - 1 < activeDay" v-if="!dayRevealed" @unlock="revealDay" />
+            <Lock
+                :disabled="today - 1 < activeDay"
+                v-if="!dayRevealed"
+                @unlock="revealDay"
+            />
+        </div>
+        <div class="player">
+            <p class="title" v-if="dayRevealed">{{ days[activeDay].track?.name }}</p>
+            <p class="artists" v-if="dayRevealed">{{ days[activeDay].track?.artists.map(a => a.name).join(", ") }}</p>
         </div>
     </div>
 </template>
@@ -84,9 +96,6 @@ function handleSlideClick(e: MouseEvent) {
     row-gap: 16px;
 }
 
-.container > * + * {
-    margin-bottom: 16px;
-}
 
 .slides {
     display: flex;
@@ -141,5 +150,25 @@ function handleSlideClick(e: MouseEvent) {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.player {
+    height: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #222;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.player > .title {
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1.05rem;
+}
+
+.player > .artists {
+    font-weight: 300;
 }
 </style>
