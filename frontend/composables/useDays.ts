@@ -1,4 +1,4 @@
-import type { PlaylistedTrack } from "@spotify/web-api-ts-sdk";
+import { setPwdHeader } from "./useCalendar";
 
 export interface Track {
     name: string;
@@ -24,6 +24,10 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
     const { pb } = usePocketbase();
     const { sdk } = useSpotify();
     const days = ref<Day[]>(generateEmptyDays());
+
+    if (pwd) {
+        setPwdHeader(pb, pwd);
+    }
 
     const { calendar } = useCalendar(calendarId, pwd);
 

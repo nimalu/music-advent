@@ -97,7 +97,7 @@ interface Calendar {
     name: string;
 }
 
-function setPwdHeader(pb: Client, password: string) {
+export function setPwdHeader(pb: Client, password: string) {
     pb.beforeSend = function (_, options) {
         if (!options.headers) {
             options.headers = {};
