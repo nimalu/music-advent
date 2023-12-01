@@ -39,6 +39,7 @@ export const useDays = (calendarId: MaybeRefOrGetter<string>, pwd?: string) => {
             }
             return;
         }
+        await sdk.getAccessToken()
         const tracksPage = await sdk.playlists.getPlaylistItems(
             playlist.id,
             undefined,
