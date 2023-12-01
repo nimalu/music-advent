@@ -11,7 +11,6 @@ const password = (() => {
 })();
 const today = new Date().getDate();
 const preview = "preview" in route.query;
-const locked = new Date().getMonth() == 10;
 
 const { calendar } = useCalendar(calendarId, password);
 
@@ -20,8 +19,17 @@ const { playTrack } = usePlayer();
 const { days } = useDays(calendarId, password);
 
 const activeDay = ref<number>(7);
+const dayRevealed = ref(false);
+
+function revealDay() {
+    dayRevealed.value = true;
+}
 
 function openDay(day: number) {
+    if (day == activeDay.value) {
+        return
+    }
+    dayRevealed.value = false;
     activeDay.value = day;
 }
 
@@ -50,12 +58,13 @@ function handleSlideClick(e: MouseEvent) {
                 v-for="(day, index) in days"
                 :key="index"
                 :src="day.content?.url"
-                :class="{hidden: index != activeDay}"
+                :class="{ hidden: index != activeDay || !dayRevealed }"
                 @click="handleSlideClick"
             />
             <div class="door-label">
                 {{ activeDay + 1 }}
             </div>
+            <Lock :disabled="today - 1 < activeDay" v-if="!dayRevealed" @unlock="revealDay" />
         </div>
     </div>
 </template>
@@ -106,6 +115,8 @@ function handleSlideClick(e: MouseEvent) {
     overflow: hidden;
     flex-grow: 1;
     display: flex;
+    row-gap: 1rem;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
@@ -121,6 +132,7 @@ function handleSlideClick(e: MouseEvent) {
 }
 
 .door-label {
+    user-select: none;
     background-color: white;
     width: 6rem;
     height: 6rem;
